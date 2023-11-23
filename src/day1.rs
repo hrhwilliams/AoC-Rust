@@ -1,9 +1,9 @@
 use std::error::Error;
 
-pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
-    let problem = include_str!("day1.txt");
+const PROBLEM: &str = include_str!("day1.txt");
 
-    let max = problem.split("\n\n").map(|list| -> u32 {
+pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
+    let max = PROBLEM.split("\n\n").map(|list| -> u32 {
         list.split("\n")
             .map(|string| string.parse::<u32>().unwrap())
             .sum()
@@ -15,10 +15,9 @@ pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
 }
 
 pub fn solution2() -> Result<(), Box<dyn Error + 'static>> {
-    let problem = include_str!("day1.txt");
     let mut top_3: [u32; 3] = [0; 3];
 
-    let calories = problem.split("\n\n").map(|list| -> u32 {
+    let calories = PROBLEM.split("\n\n").map(|list| -> u32 {
         list.split("\n")
             .map(|string| string.parse::<u32>().unwrap())
             .sum()
