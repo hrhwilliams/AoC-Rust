@@ -1,6 +1,6 @@
 use std::error::Error;
 
-const PROBLEM: &str = include_str!("day3.txt");
+const PROBLEM: &str = include_str!("input/day3.txt");
 
 fn priority(c: char) -> Option<u32> {
     if c.is_ascii_alphabetic() {

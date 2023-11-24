@@ -1,6 +1,6 @@
 use std::error::Error;
 
-const PROBLEM: &str = include_str!("day4.txt");
+const PROBLEM: &str = include_str!("input/day4.txt");
 
 fn parse_pair(pair: &str) -> (u32, u32) {
     let dash = pair.find("-").expect("Missing '-'");

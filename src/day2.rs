@@ -1,6 +1,6 @@
 use std::error::Error;
 
-const PROBLEM: &str = include_str!("day2.txt");
+const PROBLEM: &str = include_str!("input/day2.txt");
 
 pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
     let total_score: u32 = PROBLEM.split("\n").map(|line| -> u32 {

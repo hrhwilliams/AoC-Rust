@@ -2,7 +2,7 @@ use std::error::Error;
 
 use regex::Regex;
 
-const PROBLEM: &str = include_str!("day5.txt");
+const PROBLEM: &str = include_str!("input/day5.txt");
 
 /* input:
  *     [M]             [Z]     [V]    

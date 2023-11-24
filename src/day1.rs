@@ -1,6 +1,6 @@
 use std::error::Error;
 
-const PROBLEM: &str = include_str!("day1.txt");
+const PROBLEM: &str = include_str!("input/day1.txt");
 
 pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
     let max = PROBLEM.split("\n\n").map(|list| -> u32 {
