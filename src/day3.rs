@@ -3,12 +3,12 @@ use std::error::Error;
 const PROBLEM: &str = include_str!("day3.txt");
 
 fn priority(c: char) -> Option<u32> {
-    let ascii_value: u32 = c.into();
-
-    if ascii_value >= 'a' as u32 && ascii_value <= 'z' as u32 {
-        Some(ascii_value - 'a' as u32 + 1)
-    } else if ascii_value >= 'A'.into() && ascii_value <= 'Z'.into() {
-        Some(ascii_value - 'A' as u32 + 27)
+    if c.is_ascii_alphabetic() {
+        match c {
+            'a'..='z' => Some(c as u32 - 'a' as u32 + 1),
+            'A'..='Z' => Some(c as u32 - 'A' as u32 + 27),
+            _ => None, // unreachable
+        }
     } else {
         None
     }
@@ -35,5 +35,28 @@ pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
 }
 
 pub fn solution2() -> Result<(), Box<dyn Error + 'static>> {
+    let rucksacks: Vec<String> = PROBLEM.split("\n").map(|string| string.to_string()).collect();
+
+    let mut i: usize = 0;
+    let mut acc: u32 = 0;
+
+    while i < rucksacks.len() {
+        let mut r1 = std::collections::HashSet::<char>::new();
+        r1.extend(rucksacks[i].chars());
+
+        let mut r2 = std::collections::HashSet::<char>::new();
+        r2.extend(rucksacks[i+1].chars());
+
+        for c in rucksacks[i+2].chars() {
+            if r1.contains(&c) && r2.contains(&c) {
+                acc += priority(c).unwrap();
+                break;
+            }
+        }
+        i += 3;
+    }
+
+    println!("Answer: {}", acc);
+
     Ok(())
 }
