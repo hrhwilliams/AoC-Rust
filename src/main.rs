@@ -9,7 +9,8 @@ mod day4;
 mod day5;
 mod day6;
 mod day7;
+mod day8;
 
 fn main() -> Result<(), Box<dyn Error + 'static>> {
-    day7::solution2()
+    day8::solution2()
 }
