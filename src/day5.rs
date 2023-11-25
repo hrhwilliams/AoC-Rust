@@ -30,7 +30,7 @@ pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
     stacks[7] = vec!('Q', 'R', 'S', 'N', 'C', 'H', 'Z', 'V');
     stacks[8] = vec!('F', 'L', 'G', 'P', 'V', 'Q', 'J');
 
-    for line in PROBLEM.split("\n") {
+    for line in PROBLEM.split('\n') {
         if let Some(captures) = move_re.captures(line) {
             let n = captures["n"].parse::<usize>()
                 .expect("Failed to parse n");
@@ -72,7 +72,7 @@ pub fn solution2() -> Result<(), Box<dyn Error + 'static>> {
     stacks[7] = vec!('Q', 'R', 'S', 'N', 'C', 'H', 'Z', 'V');
     stacks[8] = vec!('F', 'L', 'G', 'P', 'V', 'Q', 'J');
 
-    for line in PROBLEM.split("\n") {
+    for line in PROBLEM.split('\n') {
         if let Some(captures) = move_re.captures(line) {
             let mut moved = Vec::<char>::new();
             let n = captures["n"].parse::<usize>()

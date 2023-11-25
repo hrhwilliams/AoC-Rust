@@ -3,7 +3,7 @@ use std::error::Error;
 const PROBLEM: &str = include_str!("input/day2.txt");
 
 pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
-    let total_score: u32 = PROBLEM.split("\n").map(|line| -> u32 {
+    let total_score: u32 = PROBLEM.split('\n').map(|line| -> u32 {
         match line {
             "A X" => 1 + 3, // rock vs rock         -> draw + 3
             "A Y" => 2 + 6, // rock vs paper        -> win  + 6
@@ -24,7 +24,7 @@ pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
 }
 
 pub fn solution2() -> Result<(), Box<dyn Error + 'static>> {
-    let total_score: u32 = PROBLEM.split("\n").map(|line| -> u32 {
+    let total_score: u32 = PROBLEM.split('\n').map(|line| -> u32 {
         match line {
             "A X" => 3,     // rock vs scissors -> lose + 0
             "A Y" => 1 + 3, // rock vs rock -> draw + 3

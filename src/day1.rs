@@ -4,7 +4,7 @@ const PROBLEM: &str = include_str!("input/day1.txt");
 
 pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
     let max = PROBLEM.split("\n\n").map(|list| -> u32 {
-        list.split("\n")
+        list.split('\n')
             .map(|string| string.parse::<u32>().unwrap())
             .sum()
     }).max().expect("Failed to run on input");
@@ -18,7 +18,7 @@ pub fn solution2() -> Result<(), Box<dyn Error + 'static>> {
     let mut top_3: [u32; 3] = [0; 3];
 
     let calories = PROBLEM.split("\n\n").map(|list| -> u32 {
-        list.split("\n")
+        list.split('\n')
             .map(|string| string.parse::<u32>().unwrap())
             .sum()
     });

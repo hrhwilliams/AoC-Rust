@@ -15,7 +15,7 @@ fn priority(c: char) -> Option<u32> {
 }
 
 pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
-    let answer: u32 = PROBLEM.split("\n").map(|rucksack: &str| -> u32 {
+    let answer: u32 = PROBLEM.split('\n').map(|rucksack: &str| -> u32 {
         let (first, second) = rucksack.split_at(rucksack.len() / 2);
         let mut set = std::collections::HashSet::new();
         set.extend(first.chars());
@@ -35,7 +35,7 @@ pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
 }
 
 pub fn solution2() -> Result<(), Box<dyn Error + 'static>> {
-    let rucksacks: Vec<String> = PROBLEM.split("\n").map(|string| string.to_string()).collect();
+    let rucksacks: Vec<String> = PROBLEM.split('\n').map(|string| string.to_string()).collect();
 
     let mut i: usize = 0;
     let mut acc: u32 = 0;

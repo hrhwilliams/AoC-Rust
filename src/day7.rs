@@ -32,8 +32,12 @@ impl Directory {
         self.subdirs.get_mut(name)
     }
 
-    fn subdir(&self, name: &str) -> Option<&Box<Directory>> {
-        self.subdirs.get(name)
+    fn subdir(&self, name: &str) -> Option<&Directory> {
+        if let Some(dir) = self.subdirs.get(name) {
+            Some(dir.as_ref())
+        } else {
+            None
+        }
     }
 
     fn calculate_size(&mut self) -> usize {
@@ -66,7 +70,7 @@ impl File {
 fn run_commands(dir: &mut Directory, cmd: &[&str]) -> usize {
     println!("entering {}", dir.name);
 
-    if cmd.len() > 0 {
+    if !cmd.is_empty() {
         let mut i: usize = 0;
         while i < cmd.len() {
             println!("{}: {}", dir.name, &cmd[i]);
@@ -77,7 +81,7 @@ fn run_commands(dir: &mut Directory, cmd: &[&str]) -> usize {
                     if &cmd[i][0..3] == "dir" {
                         dir.add_directory(&cmd[i][4..])
                     } else {
-                        let space = cmd[i].find(" ").expect("Missing ' '");
+                        let space = cmd[i].find(' ').expect("Missing ' '");
                         let size = cmd[i][0..space].parse::<usize>().expect("Failed to parse filesize");
                         let name = &cmd[i][space+1..];
                         dir.add_file(name, size);
@@ -104,7 +108,7 @@ fn run_commands(dir: &mut Directory, cmd: &[&str]) -> usize {
 
 fn count_less_than(root: &Directory, n: usize) -> usize {
     let mut size: usize = if root.size <= n {root.size} else { 0 };
-    for (_, dir) in &root.subdirs {
+    for dir in root.subdirs.values() {
         size += count_less_than(dir, n);
     }
 
@@ -114,7 +118,7 @@ fn count_less_than(root: &Directory, n: usize) -> usize {
 pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
     let mut root = Directory::new("/");
 
-    let lines: Vec<&str> = PROBLEM.split("\n").collect();
+    let lines: Vec<&str> = PROBLEM.split('\n').collect();
 
     run_commands(&mut root, lines.as_slice());
     root.calculate_size();
@@ -143,7 +147,7 @@ fn find_smallest_directory_bigger_than(root: &Directory, n: usize) -> Option<usi
 pub fn solution2() -> Result<(), Box<dyn Error + 'static>> {
     let mut root = Directory::new("/");
 
-    let lines: Vec<&str> = PROBLEM.split("\n").collect();
+    let lines: Vec<&str> = PROBLEM.split('\n').collect();
 
     run_commands(&mut root, lines.as_slice());
     root.calculate_size();
