@@ -1,7 +1,7 @@
-[package]
-name = "aoc"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+members = [
+    "aoc-2020",
+    "aoc-2021",
+    "aoc-2022",
+]
 
-[dependencies]
-regex = "1.10.2"
