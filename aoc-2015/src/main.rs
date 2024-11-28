@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
 use std::error::Error;
-use aoc_2022::*;
+use aoc_2015::*;
 
 fn main() -> Result<(), Box<dyn Error + 'static>> {
-    day8::solution2()
+    day3::solution2()
 }
