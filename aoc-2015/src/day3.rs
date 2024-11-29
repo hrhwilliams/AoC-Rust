@@ -6,7 +6,7 @@ pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
     let mut visited = HashSet::<(i32, i32)>::new();
     let mut last_pos = (0, 0);
     visited.insert(last_pos);
-    
+
     for ch in PROBLEM.chars() {
         match ch {
             '^' => last_pos = (last_pos.0 + 1, last_pos.1),
@@ -28,7 +28,7 @@ pub fn solution2() -> Result<(), Box<dyn Error + 'static>> {
     let mut santa_last_pos = (0, 0);
     let mut robo_santa_last_pos = (0, 0);
     let mut robo_santa: bool = false;
-    
+
     visited.insert(santa_last_pos);
 
     for ch in PROBLEM.chars() {
@@ -56,7 +56,7 @@ pub fn solution2() -> Result<(), Box<dyn Error + 'static>> {
 
         robo_santa = !robo_santa;
     }
-    
+
     println!("Answer: {}", visited.len());
     Ok(())
 }

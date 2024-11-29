@@ -1,4 +1,7 @@
-use std::{collections::{HashSet, VecDeque}, error::Error};
+use std::{
+    collections::{HashSet, VecDeque},
+    error::Error,
+};
 
 const PROBLEM: &str = include_str!("input/day1.txt");
 
@@ -19,8 +22,7 @@ pub fn solution2() -> Result<(), Box<dyn Error + 'static>> {
     let mut seen = HashSet::<i32>::new();
     let mut accumulator: i32 = 0;
 
-    let mut queue: VecDeque<&str> = PROBLEM.lines()
-        .collect();
+    let mut queue: VecDeque<&str> = PROBLEM.lines().collect();
 
     loop {
         let line = queue.pop_front().unwrap();

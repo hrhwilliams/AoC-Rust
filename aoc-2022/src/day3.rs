@@ -15,19 +15,22 @@ fn priority(c: char) -> Option<u32> {
 }
 
 pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
-    let answer: u32 = PROBLEM.split('\n').map(|rucksack: &str| -> u32 {
-        let (first, second) = rucksack.split_at(rucksack.len() / 2);
-        let mut set = std::collections::HashSet::new();
-        set.extend(first.chars());
+    let answer: u32 = PROBLEM
+        .split('\n')
+        .map(|rucksack: &str| -> u32 {
+            let (first, second) = rucksack.split_at(rucksack.len() / 2);
+            let mut set = std::collections::HashSet::new();
+            set.extend(first.chars());
 
-        for ch in second.chars() {
-            if set.contains(&ch) {
-                return priority(ch).expect("Failed to convert item to priority");
+            for ch in second.chars() {
+                if set.contains(&ch) {
+                    return priority(ch).expect("Failed to convert item to priority");
+                }
             }
-        }
 
-        panic!("Expected rucksack to have one duplicate; found none");
-    }).sum();
+            panic!("Expected rucksack to have one duplicate; found none");
+        })
+        .sum();
 
     println!("Answer: {}", answer);
 
@@ -35,7 +38,10 @@ pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
 }
 
 pub fn solution2() -> Result<(), Box<dyn Error + 'static>> {
-    let rucksacks: Vec<String> = PROBLEM.split('\n').map(|string| string.to_string()).collect();
+    let rucksacks: Vec<String> = PROBLEM
+        .split('\n')
+        .map(|string| string.to_string())
+        .collect();
 
     let mut i: usize = 0;
     let mut acc: u32 = 0;
@@ -45,9 +51,9 @@ pub fn solution2() -> Result<(), Box<dyn Error + 'static>> {
         r1.extend(rucksacks[i].chars());
 
         let mut r2 = std::collections::HashSet::<char>::new();
-        r2.extend(rucksacks[i+1].chars());
+        r2.extend(rucksacks[i + 1].chars());
 
-        for c in rucksacks[i+2].chars() {
+        for c in rucksacks[i + 2].chars() {
             if r1.contains(&c) && r2.contains(&c) {
                 acc += priority(c).unwrap();
                 break;

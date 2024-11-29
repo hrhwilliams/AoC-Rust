@@ -16,12 +16,13 @@ impl Directory {
             subdirs: std::collections::HashMap::<String, Box<Directory>>::new(),
             files: Vec::<File>::new(),
             name: name.to_string(),
-            size: 0
+            size: 0,
         }
     }
 
     fn add_directory(&mut self, name: &str) {
-        self.subdirs.insert(name.to_string(), Box::new(Directory::new(name)));
+        self.subdirs
+            .insert(name.to_string(), Box::new(Directory::new(name)));
     }
 
     fn add_file(&mut self, name: &str, size: usize) {
@@ -41,12 +42,12 @@ impl Directory {
     }
 
     fn calculate_size(&mut self) -> usize {
-        let subdirs_size = self.subdirs.iter_mut()
+        let subdirs_size = self
+            .subdirs
+            .iter_mut()
             .map(|(_, subdir)| subdir.calculate_size())
             .sum::<usize>();
-        let files_size = self.files.iter()
-            .map(|file| file.size)
-            .sum::<usize>();
+        let files_size = self.files.iter().map(|file| file.size).sum::<usize>();
 
         self.size = files_size + subdirs_size;
         self.size
@@ -55,14 +56,14 @@ impl Directory {
 
 struct File {
     name: String,
-    size: usize
+    size: usize,
 }
 
 impl File {
     fn new(name: &str, size: usize) -> Self {
         Self {
             name: name.to_string(),
-            size
+            size,
         }
     }
 }
@@ -82,8 +83,10 @@ fn run_commands(dir: &mut Directory, cmd: &[&str]) -> usize {
                         dir.add_directory(&cmd[i][4..])
                     } else {
                         let space = cmd[i].find(' ').expect("Missing ' '");
-                        let size = cmd[i][0..space].parse::<usize>().expect("Failed to parse filesize");
-                        let name = &cmd[i][space+1..];
+                        let size = cmd[i][0..space]
+                            .parse::<usize>()
+                            .expect("Failed to parse filesize");
+                        let name = &cmd[i][space + 1..];
                         dir.add_file(name, size);
                     }
                     i += 1;
@@ -92,22 +95,22 @@ fn run_commands(dir: &mut Directory, cmd: &[&str]) -> usize {
                 if &cmd[i][5..] == ".." {
                     return i + 1;
                 } else {
-                    let subdir = dir.mut_subdir(&cmd[i][5..])
+                    let subdir = dir
+                        .mut_subdir(&cmd[i][5..])
                         .expect("Tried to cd into nonexisting directory");
-                    i += run_commands(subdir.as_mut(), &cmd[i+1..]) + 1;
+                    i += run_commands(subdir.as_mut(), &cmd[i + 1..]) + 1;
                 }
             } else {
                 return i;
             }
         }
-        
     }
 
     0
 }
 
 fn count_less_than(root: &Directory, n: usize) -> usize {
-    let mut size: usize = if root.size <= n {root.size} else { 0 };
+    let mut size: usize = if root.size <= n { root.size } else { 0 };
     for dir in root.subdirs.values() {
         size += count_less_than(dir, n);
     }
@@ -131,7 +134,9 @@ pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
 
 fn find_smallest_directory_bigger_than(root: &Directory, n: usize) -> Option<usize> {
     let min = root.size;
-    let dirs_min = root.subdirs.values()
+    let dirs_min = root
+        .subdirs
+        .values()
         .filter_map(|dir| find_smallest_directory_bigger_than(dir.as_ref(), n))
         .min();
 
@@ -153,8 +158,8 @@ pub fn solution2() -> Result<(), Box<dyn Error + 'static>> {
     root.calculate_size();
 
     println!("Total space used: {}/{}", root.size, 70000000);
-    let answer = find_smallest_directory_bigger_than(&root, 7808823)
-        .expect("Failed to find directory");
+    let answer =
+        find_smallest_directory_bigger_than(&root, 7808823).expect("Failed to find directory");
     println!("Answer: {}", answer);
 
     Ok(())
