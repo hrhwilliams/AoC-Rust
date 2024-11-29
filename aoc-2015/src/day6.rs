@@ -1,4 +1,4 @@
-use regex;
+use regex::Regex;
 use std::error::Error;
 
 const PROBLEM: &str = include_str!("input/day6.txt");
@@ -55,7 +55,7 @@ fn toggle_2(lights: &mut [[i32; 1000]; 1000], x: usize, y: usize, u: usize, v: u
 
 pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
     let mut lights = [[false; 1000]; 1000];
-    let re = regex::Regex::new(r"([0-9]+),([0-9]+) through ([0-9]+),([0-9]+)")
+    let re = Regex::new(r"([0-9]+),([0-9]+) through ([0-9]+),([0-9]+)")
         .expect("Invalid regular expression");
 
     for line in PROBLEM.lines() {
