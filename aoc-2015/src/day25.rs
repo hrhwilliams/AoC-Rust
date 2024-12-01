@@ -3,7 +3,7 @@ use std::error::Error;
 
 const PROBLEM: &str = include_str!("input/day25.txt");
 
-fn tri(row: u32, col:u32) -> u32 {
+fn tri(row: u32, col: u32) -> u32 {
     // tri(1, col) = (col * (col + 1)) / 2
     // tri(2, col) = tri(1, col + 1) - 1
     // tri(3, col) = tri(2, col + 1) - 1 = tri(1, col + 2) - 2
