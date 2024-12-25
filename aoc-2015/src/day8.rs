@@ -42,15 +42,15 @@ fn encode(string: &str) -> String {
             '"' => {
                 chars.push('\\');
                 chars.push('"');
-            },
+            }
             '\\' => {
                 chars.push('\\');
                 chars.push('\\');
-            },
+            }
             _ => chars.push(chr),
         }
     }
-    
+
     chars.push('"');
     chars.into_iter().collect()
 }
