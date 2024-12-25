@@ -1,191 +1,168 @@
-use regex::Regex;
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{HashMap, HashSet, VecDeque},
     error::Error,
 };
 
 const PROBLEM: &str = include_str!("input/day7.txt");
 
-struct Context {
-    values: HashMap<String, u16>,
+enum Operation<'a> {
+    And(Box<Operation<'a>>, Box<Operation<'a>>),
+    Or(Box<Operation<'a>>, Box<Operation<'a>>),
+    LShift(Box<Operation<'a>>, Box<Operation<'a>>),
+    RShift(Box<Operation<'a>>, Box<Operation<'a>>),
+    Not(Box<Operation<'a>>),
+    Variable(&'a str),
+    Value(u16),
 }
 
-impl Context {
-    fn new() -> Self {
-        Self {
-            values: HashMap::<String, u16>::new(),
-        }
-    }
-
-    fn get_value(&self, w: &str) -> Option<&u16> {
-        self.values.get(w)
-    }
-
-    fn set_value(&mut self, w: &str, v: u16) {
-        self.values.insert(w.to_string(), v);
-    }
-}
-
-enum Op {
-    Const(u16),
-    Wire(String),
-    And(Box<Op>, Box<Op>),
-    Or(Box<Op>, Box<Op>),
-    Not(Box<Op>),
-    LShift(Box<Op>, u16),
-    RShift(Box<Op>, u16),
-}
-
-impl Op {
-    fn eval(&self, context: &Context) -> Option<u16> {
+impl<'a> Operation<'a> {
+    fn vars(&self) -> Vec<&'a str> {
         match self {
-            Self::Const(n) => Some(*n),
-            Self::Wire(w) => Some(*(context.get_value(&w)?)),
-            Self::And(l, r) => Some(l.eval(context)? & r.eval(context)?),
-            Self::Or(l, r) => Some(l.eval(context)? | r.eval(context)?),
-            Self::Not(op) => Some(!op.eval(context)?),
-            Self::LShift(op, n) => Some(op.eval(context)? << n),
-            Self::RShift(op, n) => Some(op.eval(context)? >> n),
+            Operation::And(lhs, rhs)
+            | Operation::Or(lhs, rhs)
+            | Operation::LShift(lhs, rhs)
+            | Operation::RShift(lhs, rhs) => {
+                let mut v = lhs.vars();
+                v.append(&mut rhs.vars());
+                v
+            }
+            Operation::Not(lhs) => lhs.vars(),
+            Operation::Variable(var) => vec![var],
+            Operation::Value(_) => vec![],
+        }
+    }
+
+    fn eval(&self, values: &HashMap<&str, u16>) -> u16 {
+        match self {
+            Operation::And(lhs, rhs) => lhs.eval(values) & rhs.eval(values),
+            Operation::Or(lhs, rhs) => lhs.eval(values) | rhs.eval(values),
+            Operation::LShift(lhs, rhs) => lhs.eval(values) << rhs.eval(values),
+            Operation::RShift(lhs, rhs) => lhs.eval(values) >> rhs.eval(values),
+            Operation::Not(lhs) => !lhs.eval(values),
+            Operation::Variable(var) => *values.get(var).expect("get"),
+            Operation::Value(v) => *v
         }
     }
 }
 
-fn is_num(s: &str) -> bool {
-    s.chars().all(|c| c.is_digit(10))
-}
+fn parse<'a>(op: &'a str) -> Operation<'a> {
+    let split: Vec<&str> = op.split_ascii_whitespace().collect();
 
-fn expand_rule(context: &HashMap<String, String>, rule: &str) -> Option<Op> {
-    println!("{}", rule);
-
-    if is_num(rule) {
-        Some(Op::Const(rule.parse().ok()?))
-    } else {
-        let next_rule = context.get(rule)?;
-        let split: Vec<&str> = next_rule.split(" ").collect();
-
-        match split.len() {
-            1 => {
-                if is_num(split[0]) {
-                    Some(Op::Const(rule.parse().ok()?))
-                } else {
-                    Some(Op::Wire(split[0].to_string()))
-                }
-            }
-            2 => match split[0] {
-                "NOT" => Some(Op::Not(Box::new(expand_rule(context, split[1])?))),
-                _ => None,
-            },
-            3 => match split[1] {
-                "AND" => Some(Op::And(
-                    Box::new(expand_rule(context, split[0])?),
-                    Box::new(expand_rule(context, split[2])?),
-                )),
-                "OR" => Some(Op::Or(
-                    Box::new(expand_rule(context, split[0])?),
-                    Box::new(expand_rule(context, split[2])?),
-                )),
-                "LSHIFT" => Some(Op::LShift(
-                    Box::new(expand_rule(context, split[0])?),
-                    split[2].parse().ok()?,
-                )),
-                "RSHIFT" => Some(Op::RShift(
-                    Box::new(expand_rule(context, split[0])?),
-                    split[2].parse().ok()?,
-                )),
-                _ => None,
-            },
-            _ => None,
+    if split.len() == 1 {
+        if let Ok(num) = split[0].parse::<u16>() {
+            Operation::Value(num)
+        } else {
+            Operation::Variable(op)
         }
+    } else if split.len() == 2 {
+        if split[0] == "NOT" {
+            Operation::Not(Box::new(parse(split[1])))
+        } else {
+            unreachable!()
+        }
+    } else if split.len() == 3 {
+        let lhs = parse(split[0]);
+        let rhs = parse(split[2]);
+
+        match split[1] {
+            "AND" => Operation::And(Box::new(lhs), Box::new(rhs)),
+            "OR" => Operation::Or(Box::new(lhs), Box::new(rhs)),
+            "LSHIFT" => Operation::LShift(Box::new(lhs), Box::new(rhs)),
+            "RSHIFT" => Operation::RShift(Box::new(lhs), Box::new(rhs)),
+            _ => unreachable!(),
+        }
+    } else {
+        unreachable!();
     }
 }
 
-fn dependencies(context: &HashMap<String, String>, w: &str) -> Option<Vec<String>> {
-    if is_num(w) {
-        Some(Vec::new())
-    } else {
-        let rewrite = context.get(w)?;
-        let split: Vec<&str> = rewrite.split(" ").collect();
+struct TopologicalSort<'a> {
+    _data: std::marker::PhantomData<&'a str>
+}
 
-        match split.len() {
-            1 => {
-                if is_num(split[0]) {
-                    Some(vec![])
-                } else {
-                    Some(vec![split[0].to_string()])
-                }
+impl<'a> TopologicalSort<'a> {
+    pub fn sort(dependencies: &'a HashMap<&str, Vec<&str>>) -> VecDeque<&'a str> {
+        let mut seen = HashSet::<&'a str>::new();
+        let mut l = VecDeque::<&str>::new();
+
+        for &dep in dependencies.keys() {
+            Self::_visit(dep, dependencies, &mut seen, &mut l);
+        }
+
+        l
+    }
+
+    fn _visit(
+        dep: &'a str,
+        dependencies: &'a HashMap<&str, Vec<&str>>,
+        seen: &mut HashSet<&'a str>,
+        l: &mut VecDeque<&'a str>,
+    ) {
+        if !seen.contains(dep) {
+            for &dep2 in dependencies.get(dep).expect("get") {
+                Self::_visit(dep2, dependencies, seen, l);
             }
-            2 => match split[0] {
-                "NOT" => {
-                    if is_num(split[0]) {
-                        Some(vec![])
-                    } else {
-                        Some(vec![split[1].to_string()])
-                    }
-                }
-                _ => None,
-            },
-            3 => match split[1] {
-                "AND" | "OR" => {
-                    let mut v = vec![];
-                    if !is_num(split[0]) {
-                        v.push(split[0].to_string());
-                    }
-                    if !is_num(split[2]) {
-                        v.push(split[2].to_string());
-                    }
-                    Some(v)
-                }
-                "RSHIFT" | "LSHIFT" => {
-                    if is_num(split[0]) {
-                        Some(vec![split[0].to_string()])
-                    } else {
-                        Some(vec![])
-                    }
-                }
-                _ => None,
-            },
-            _ => None,
+
+            seen.insert(dep);
+            l.push_back(dep);
         }
     }
 }
 
 pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
-    let re = Regex::new(r"(.+) -> (.+)")?;
-    let mut rules = HashMap::<String, String>::new();
-    let mut ctx = Context::new();
+    let mut dependencies = HashMap::<&str, Vec<&str>>::new();
+    let mut instructions = HashMap::<&str, Operation>::new();
+    let mut values = HashMap::<&str, u16>::new();
 
     for line in PROBLEM.lines() {
-        let caps = re.captures(line).unwrap();
-        let rewrite = caps.get(1).unwrap().as_str();
-        let target = caps.get(2).unwrap().as_str();
-        rules.insert(target.to_string(), rewrite.to_string());
+        let operands: Vec<&str> = line.split("->").map(|s| s.trim()).collect();
+
+        assert_eq!(operands.len(), 2);
+        let instuction = parse(operands[0]);
+        dependencies.insert(operands[1], instuction.vars());
+        instructions.insert(operands[1], instuction);
     }
 
-    rules.get("b").unwrap();
-
-    let deps: HashMap<String, Vec<String>> = rules
-        .iter()
-        .map(|(k, v)| (k.clone(), dependencies(&rules, k).unwrap()))
-        .collect();
-
-    let consts: Vec<String> = deps
-        .iter()
-        .filter(|(k, v)| v.len() == 0)
-        .map(|(k, v)| k.clone())
-        .collect();
-
-    for c in consts {
-        let op = expand_rule(&rules, &c).unwrap();
-        ctx.set_value(&c, op.eval(&ctx).unwrap());
+    let sorted = TopologicalSort::sort(&dependencies);
+    for dep in sorted {
+        let op = instructions.get(dep).expect("get");
+        values.insert(dep, op.eval(&values));
     }
 
-    println!("{:?}", ctx.values);
-
-    // println!("{}", expand_rule(&rules, "aa").unwrap());
-
+    println!("Answer: {}", values.get("a").expect("get")); // 16076
     Ok(())
 }
 
 pub fn solution2() -> Result<(), Box<dyn Error + 'static>> {
+    let mut dependencies = HashMap::<&str, Vec<&str>>::new();
+    let mut instructions = HashMap::<&str, Operation>::new();
+    let mut values = HashMap::<&str, u16>::new();
+
+    for line in PROBLEM.lines() {
+        let operands: Vec<&str> = line.split("->").map(|s| s.trim()).collect();
+
+        assert_eq!(operands.len(), 2);
+        let instuction = parse(operands[0]);
+        dependencies.insert(operands[1], instuction.vars());
+        instructions.insert(operands[1], instuction);
+    }
+
+    let sorted = TopologicalSort::sort(&dependencies);
+    for &dep in &sorted {
+        let op = instructions.get(dep).expect("get");
+        values.insert(dep, op.eval(&values));
+    }
+
+    let a = *values.get("a").expect("get");
+
+    values.clear();
+    instructions.insert("b", Operation::Value(a));
+
+    for &dep in &sorted {
+        let op = instructions.get(dep).expect("get");
+        values.insert(dep, op.eval(&values));
+    }
+
+    println!("Answer: {}", values.get("a").expect("get"));
     Ok(())
 }
