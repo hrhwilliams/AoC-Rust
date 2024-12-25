@@ -40,7 +40,7 @@ impl<'a> Operation<'a> {
             Operation::RShift(lhs, rhs) => lhs.eval(values) >> rhs.eval(values),
             Operation::Not(lhs) => !lhs.eval(values),
             Operation::Variable(var) => *values.get(var).expect("get"),
-            Operation::Value(v) => *v
+            Operation::Value(v) => *v,
         }
     }
 }
@@ -77,7 +77,7 @@ fn parse<'a>(op: &'a str) -> Operation<'a> {
 }
 
 struct TopologicalSort<'a> {
-    _data: std::marker::PhantomData<&'a str>
+    _data: std::marker::PhantomData<&'a str>,
 }
 
 impl<'a> TopologicalSort<'a> {
