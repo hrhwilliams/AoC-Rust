@@ -4,5 +4,5 @@ use aoc_2015::*;
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error + 'static>> {
-    day9::solution2()
+    day10::solution2()
 }
