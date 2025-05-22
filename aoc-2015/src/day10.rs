@@ -1,6 +1,6 @@
 use std::error::Error;
 
-const PROBLEM: &str = "1113222113";
+const PROBLEM: &str = include_str!("input/day10.txt");
 
 fn iterate(num: &str) -> String {
     let mut current_char = '\0';
