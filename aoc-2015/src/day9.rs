@@ -50,7 +50,7 @@ fn build_graph(problem: &str) -> HashMap<&str, Vec<Edge>> {
     graph
 }
 
-fn find_shorted_round_trip(start: &str, graph: &HashMap<&str, Vec<Edge>>) -> usize {
+fn find_shortest_round_trip(start: &str, graph: &HashMap<&str, Vec<Edge>>) -> usize {
     let mut visited = HashSet::<&str>::new();
     visited.insert(start);
     let mut path_lengths= vec!();
@@ -72,7 +72,7 @@ fn backtrack<'a>(
     path.push(city);
 
     if visited.len() == graph.keys().len() {
-        println!("{:?}", path);
+        // println!("{:?}:{}", path, dist);
         path_lengths.push(dist);
     } else {
         for edge in graph.get(city).unwrap().iter() {
@@ -88,9 +88,10 @@ fn backtrack<'a>(
 
 pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
     let graph = build_graph(PROBLEM);
-    let path_length = find_shorted_round_trip("Tristram", &graph);
-
-    println!("min = {}", path_length);
+    for start in graph.keys() {
+        let path_length = find_shortest_round_trip(start, &graph);
+        println!("min starting from {} = {}", start, path_length);
+    }
 
     Ok(())
 }
