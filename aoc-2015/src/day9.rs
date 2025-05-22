@@ -79,14 +79,16 @@ fn find_shortest_round_trip(graph: &HashMap<&str, Vec<Edge>>) -> Option<usize> {
         let mut path_lengths = vec![];
 
         backtrack(start, 0, &graph, &mut visited, &mut path_lengths);
-        if let Some(m) = path_lengths.iter().min() {
-            if let Some(c) = min {
-                if *m < c {
-                    min = Some(*m);
+        match (min, path_lengths.iter().min()) {
+            (Some(m1), Some(m2)) => {
+                if *m2 < m1 {
+                    min = Some(*m2);
                 }
-            } else {
-                min = Some(*m)
             }
+            (None, Some(m2)) => {
+                min = Some(*m2);
+            }
+            _ => {}
         }
     }
 
@@ -102,14 +104,16 @@ fn find_longest_round_trip(graph: &HashMap<&str, Vec<Edge>>) -> Option<usize> {
         let mut path_lengths = vec![];
 
         backtrack(start, 0, &graph, &mut visited, &mut path_lengths);
-        if let Some(m) = path_lengths.iter().max() {
-            if let Some(c) = max {
-                if *m > c {
-                    max = Some(*m);
+        match (max, path_lengths.iter().max()) {
+            (Some(m1), Some(m2)) => {
+                if *m2 > m1 {
+                    max = Some(*m2);
                 }
-            } else {
-                max = Some(*m)
             }
+            (None, Some(m2)) => {
+                max = Some(*m2);
+            }
+            _ => {}
         }
     }
 
