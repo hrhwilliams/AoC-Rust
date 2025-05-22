@@ -50,52 +50,84 @@ fn build_graph(problem: &str) -> HashMap<&str, Vec<Edge>> {
     graph
 }
 
-fn find_shortest_round_trip(start: &str, graph: &HashMap<&str, Vec<Edge>>) -> usize {
-    let mut visited = HashSet::<&str>::new();
-    visited.insert(start);
-    let mut path_lengths= vec!();
-    let mut path = vec!();
-
-    backtrack(start, 0, &graph, &mut visited, &mut path_lengths, &mut path);
-
-    *path_lengths.iter().min().unwrap()
-}
-
 fn backtrack<'a>(
     city: &'a str,
     dist: usize,
     graph: &HashMap<&'a str, Vec<Edge<'a>>>,
     visited: &mut HashSet<&'a str>,
     path_lengths: &mut Vec<usize>,
-    path: &mut Vec<&'a str>
 ) {
-    path.push(city);
-
     if visited.len() == graph.keys().len() {
-        // println!("{:?}:{}", path, dist);
         path_lengths.push(dist);
     } else {
         for edge in graph.get(city).unwrap().iter() {
             if !visited.contains(edge.dest) {
-                let mut new_path = path.clone();
                 visited.insert(edge.dest);
-                backtrack(edge.dest, dist + edge.dist, graph, visited, path_lengths, &mut new_path);
+                backtrack(edge.dest, dist + edge.dist, graph, visited, path_lengths);
                 visited.remove(edge.dest);
             }
         }
     }
 }
 
-pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
-    let graph = build_graph(PROBLEM);
-    for start in graph.keys() {
-        let path_length = find_shortest_round_trip(start, &graph);
-        println!("min starting from {} = {}", start, path_length);
+fn find_shortest_round_trip(graph: &HashMap<&str, Vec<Edge>>) -> Option<usize> {
+    let mut min: Option<usize> = None;
+
+    for &start in graph.keys() {
+        let mut visited = HashSet::<&str>::new();
+        visited.insert(start);
+        let mut path_lengths = vec![];
+
+        backtrack(start, 0, &graph, &mut visited, &mut path_lengths);
+        if let Some(m) = path_lengths.iter().min() {
+            if let Some(c) = min {
+                if *m < c {
+                    min = Some(*m);
+                }
+            } else {
+                min = Some(*m)
+            }
+        }
     }
 
+    min
+}
+
+fn find_longest_round_trip(graph: &HashMap<&str, Vec<Edge>>) -> Option<usize> {
+    let mut max: Option<usize> = None;
+
+    for &start in graph.keys() {
+        let mut visited = HashSet::<&str>::new();
+        visited.insert(start);
+        let mut path_lengths = vec![];
+
+        backtrack(start, 0, &graph, &mut visited, &mut path_lengths);
+        if let Some(m) = path_lengths.iter().max() {
+            if let Some(c) = max {
+                if *m > c {
+                    max = Some(*m);
+                }
+            } else {
+                max = Some(*m)
+            }
+        }
+    }
+
+    max
+}
+
+pub fn solution1() -> Result<(), Box<dyn Error + 'static>> {
+    let graph = build_graph(PROBLEM);
+    let min = find_shortest_round_trip(&graph);
+
+    println!("{}", min.unwrap());
     Ok(())
 }
 
 pub fn solution2() -> Result<(), Box<dyn Error + 'static>> {
+    let graph = build_graph(PROBLEM);
+    let min = find_longest_round_trip(&graph);
+
+    println!("{}", min.unwrap());
     Ok(())
 }
